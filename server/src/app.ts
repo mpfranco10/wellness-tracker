@@ -14,6 +14,24 @@ app.get("/api/health", async () => {
   };
 });
 
+app.post("/api/weights", async (request, reply) => {
+  const body = request.body as {
+    userId: string;
+    weightKg: number;
+    recordedAt?: string;
+  };
+
+  const weightEntry = await prisma.weightEntry.create({
+    data: {
+      userId: body.userId,
+      weightKg: body.weightKg,
+      recordedAt: body.recordedAt ? new Date(body.recordedAt) : new Date(),
+    },
+  });
+
+  return reply.status(201).send(weightEntry);
+});
+
 const start = async () => {
   try {
     await app.listen({
