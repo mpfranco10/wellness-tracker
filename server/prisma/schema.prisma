@@ -1,0 +1,199 @@
+// Wellness Tracker - Prisma Schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ======================================================
+// USER
+// ======================================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile          Profile?
+  weightEntries    WeightEntry[]
+  meals            Meal[]
+  exerciseEntries  ExerciseEntry[]
+  customActivities CustomActivity[]
+  gardenPlants     GardenPlant[]
+}
+
+// ======================================================
+// PROFILE
+// ======================================================
+
+model Profile {
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  heightCm                Decimal
+  dateOfBirth             DateTime
+  sex                     Sex
+  targetWeightKg          Decimal
+  exerciseGoalDaysPerWeek Int
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ======================================================
+// WEIGHT
+// ======================================================
+
+model WeightEntry {
+  id         String   @id @default(uuid())
+  userId     String
+  weightKg   Decimal
+  recordedAt DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+}
+
+// ======================================================
+// MEALS
+// ======================================================
+
+model Meal {
+  id                String       @id @default(uuid())
+  userId            String
+  type              MealType
+  location          MealLocation
+  restaurantName    String?
+  description       String?
+  photoUrl          String?
+  estimatedCalories Int?
+  recordedAt        DateTime
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  components MealComponent[]
+
+  @@index([userId, recordedAt])
+}
+
+model MealComponent {
+  id                String        @id @default(uuid())
+  mealId            String
+  name              String
+  estimatedCalories Int?
+  category          MealCategory?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  meal Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@index([mealId])
+}
+
+// ======================================================
+// EXERCISE
+// ======================================================
+
+model ExerciseEntry {
+  id                String            @id @default(uuid())
+  userId            String
+  activityName      String
+  durationMinutes   Int
+  intensity         ExerciseIntensity
+  estimatedCalories Int?
+  notes             String?
+  recordedAt        DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+}
+
+model CustomActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+}
+
+// ======================================================
+// GARDEN
+// ======================================================
+
+model PlantType {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  imageKey  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gardenPlants GardenPlant[]
+}
+
+model GardenPlant {
+  id          String   @id @default(uuid())
+  userId      String
+  plantTypeId String
+  plantedAt   DateTime
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plantType PlantType @relation(fields: [plantTypeId], references: [id])
+
+  @@index([userId, plantedAt])
+}
+
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum Sex {
+  FEMALE
+  MALE
+  OTHER
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  OTHER
+}
+
+enum MealLocation {
+  HOME
+  RESTAURANT
+  OTHER
+}
+
+enum MealCategory {
+  PROTEIN
+  CARBOHYDRATE
+  VEGETABLE
+  FRUIT
+  OTHER
+}
+
+enum ExerciseIntensity {
+  LIGHT
+  MODERATE
+  HIGH
+}
