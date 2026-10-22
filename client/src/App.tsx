@@ -1,75 +1,28 @@
-import { useState, type SubmitEvent } from "react";
-import { useCreateWeight, useWeights } from "./api/hooks/useWeights";
+import { WeightForm } from "@/components/weight/WeightForm";
+import { WeightHistory } from "@/components/weight/WeightHistory";
+import { WeightSummary } from "@/components/weight/WeightSummary";
 
 function App() {
-  const [weight, setWeight] = useState("");
-
-  const { data: weights, isLoading, isError } = useWeights();
-
-  const createWeight = useCreateWeight();
-
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const weightKg = Number(weight);
-
-    if (!weight || Number.isNaN(weightKg) || weightKg <= 0) {
-      return;
-    }
-
-    createWeight.mutate(
-      {
-        weightKg,
-      },
-      {
-        onSuccess: () => {
-          setWeight("");
-        },
-      },
-    );
-  }
-
-  if (isLoading) {
-    return <p>Loading weights...</p>;
-  }
-
-  if (isError) {
-    return <p>Could not load weights.</p>;
-  }
-
   return (
-    <main>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="weight">Weight (kg)</label>
+    <main className="min-h-screen bg-muted/30">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <header className="mb-8">
+          <h1 className="text-4xl font-bold tracking-tight">Weight</h1>
 
-        <input
-          id="weight"
-          type="number"
-          step="0.1"
-          value={weight}
-          onChange={(event) => setWeight(event.target.value)}
-          placeholder="74.0"
-        />
+          <p className="mt-1 text-muted-foreground">
+            Track your progress over time.
+          </p>
+        </header>
 
-        <button type="submit" disabled={createWeight.isPending}>
-          {createWeight.isPending ? "Saving..." : "Save Weight"}
-        </button>
+        <div className="grid gap-6 md:grid-cols-2">
+          <WeightSummary />
+          <WeightForm />
+        </div>
 
-        {createWeight.isError && <p>Could not save weight.</p>}
-      </form>
-
-      <h1>Weight History</h1>
-
-      {weights?.length === 0 ? (
-        <p>No weight entries yet.</p>
-      ) : (
-        weights?.map((entry) => (
-          <div key={entry.id}>
-            <strong>{entry.weightKg} kg</strong>
-            <span> {new Date(entry.recordedAt).toLocaleString()}</span>
-          </div>
-        ))
-      )}
+        <div className="mt-6">
+          <WeightHistory />
+        </div>
+      </div>
     </main>
   );
 }
