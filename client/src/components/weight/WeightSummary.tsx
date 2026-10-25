@@ -22,13 +22,30 @@ export const WeightSummary = () => {
   const startingWeight = Number(weights.at(-1)?.weightKg);
   const weightChange = currentWeight - startingWeight;
 
+  const latestEntry = weights[0];
+
+  const lastUpdated = new Date(latestEntry.recordedAt).toLocaleString(
+    undefined,
+    {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  );
+
   return (
     <Card className="bg-secondary/55">
       <CardHeader>
         <CardDescription>Current Weight</CardDescription>
+
         <CardTitle className="text-4xl">
           {currentWeight.toFixed(1)} kg
         </CardTitle>
+
+        <p className="text-sm text-muted-foreground">
+          Last updated {lastUpdated}
+        </p>
       </CardHeader>
 
       <CardContent>

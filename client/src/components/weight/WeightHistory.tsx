@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -5,10 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useWeights } from "../../api/hooks/useWeights";
+import { useDeleteWeight, useWeights } from "../../api/hooks/useWeights";
 
 export const WeightHistory = () => {
   const { data: weights, isLoading, isError } = useWeights();
+  const { mutate: deleteWeight, isPending: isDeleting } = useDeleteWeight();
 
   if (isLoading) {
     return <p>Loading weights...</p>;
@@ -53,9 +55,20 @@ export const WeightHistory = () => {
                 </p>
               </div>
 
-              <span className="text-lg font-semibold">
-                {Number(entry.weightKg).toFixed(1)} kg
-              </span>
+              <div className="flex items-center gap-4">
+                <span className="text-lg font-semibold">
+                  {Number(entry.weightKg).toFixed(1)} kg
+                </span>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={() => deleteWeight(entry.id)}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           ))}
         </div>

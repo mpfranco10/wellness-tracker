@@ -12,9 +12,9 @@ export async function getWeights(): Promise<WeightEntry[]> {
   return response.json();
 }
 
-export async function createWeight(
+export const createWeight = async (
   input: CreateWeightInput,
-): Promise<WeightEntry> {
+): Promise<WeightEntry> => {
   const response = await fetch("/api/weights", {
     method: "POST",
     headers: {
@@ -31,4 +31,14 @@ export async function createWeight(
   }
 
   return response.json();
-}
+};
+
+export const deleteWeight = async (id: string) => {
+  const response = await fetch(`/api/weights/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete weight entry");
+  }
+};

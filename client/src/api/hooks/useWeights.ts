@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   createWeight,
+  deleteWeight,
   DEV_USER_ID,
   getWeights,
 } from "../services/weightService";
@@ -26,6 +27,18 @@ export const useCreateWeight = () => {
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: weightKeys.byUser(DEV_USER_ID),
+      }),
+  });
+};
+
+export const useDeleteWeight = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteWeight,
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["weights", DEV_USER_ID],
       }),
   });
 };
